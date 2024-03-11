@@ -45,7 +45,7 @@ fun ContactPhoto(
                 imageVector = Icons.Rounded.Person,
                 contentDescription = contact?.firstName,
                 modifier = Modifier.size(iconSize),
-                tint = MaterialTheme.colorScheme.secondaryContainer
+                tint = MaterialTheme.colorScheme.onSecondaryContainer
             )
         }
     }

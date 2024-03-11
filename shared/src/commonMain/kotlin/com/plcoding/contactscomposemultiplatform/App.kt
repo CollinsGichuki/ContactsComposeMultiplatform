@@ -10,13 +10,17 @@ import androidx.compose.ui.Modifier
 import com.plcoding.contactscomposemultiplatform.contacts.presentation.ContactListScreen
 import com.plcoding.contactscomposemultiplatform.contacts.presentation.ContactListViewModel
 import com.plcoding.contactscomposemultiplatform.core.presentation.ContactsTheme
+import com.plcoding.contactscomposemultiplatform.core.presentation.ImagePicker
+import com.plcoding.contactscomposemultiplatform.di.AppModule
 import dev.icerock.moko.mvvm.compose.getViewModel
 import dev.icerock.moko.mvvm.compose.viewModelFactory
 
 @Composable
 fun App(
     darkTheme: Boolean,
-    dynamicTheme: Boolean
+    dynamicTheme: Boolean,
+    appModule: AppModule,
+    imagePicker: ImagePicker
 ) {
     ContactsTheme(
         darkTheme = darkTheme,
@@ -25,19 +29,20 @@ fun App(
         val viewModel = getViewModel(
             key = "contactListScreen",
             factory = viewModelFactory {
-                ContactListViewModel()
+                ContactListViewModel(appModule.contactDataSource)
             }
         )
-        val state by viewModel.state.collectAsState()
 
+        val state by viewModel.state.collectAsState()
         Surface(
             modifier = Modifier.fillMaxSize(),
             color = MaterialTheme.colorScheme.background
         ) {
             ContactListScreen(
                 state = state,
-                newContact = viewModel.newContacts,
-                onEvent = viewModel::onEvent
+                newContact = viewModel.newContact,
+                onEvent = viewModel::onEvent,
+                imagePicker = imagePicker
             )
         }
     }

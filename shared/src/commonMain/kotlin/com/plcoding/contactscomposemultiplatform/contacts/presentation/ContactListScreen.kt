@@ -21,15 +21,23 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.plcoding.contactscomposemultiplatform.contacts.domain.Contact
+import com.plcoding.contactscomposemultiplatform.contacts.presentation.components.AddContactSheet
+import com.plcoding.contactscomposemultiplatform.contacts.presentation.components.ContactDetailSheet
 import com.plcoding.contactscomposemultiplatform.contacts.presentation.components.ContactListItem
+import com.plcoding.contactscomposemultiplatform.contacts.presentation.components.RecentlyAddedContacts
+import com.plcoding.contactscomposemultiplatform.core.presentation.ImagePicker
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ContactListScreen(
     state: ContactListState,
     newContact: Contact?,
-    onEvent: (ContactListEvent) -> Unit
+    onEvent: (ContactListEvent) -> Unit,
+    imagePicker: ImagePicker
 ) {
+    imagePicker.registerPicker { imageBytes ->
+        onEvent(ContactListEvent.OnPhotoPicked(imageBytes))
+    }
     Scaffold(
         floatingActionButton = {
             FloatingActionButton(
@@ -50,6 +58,14 @@ fun ContactListScreen(
             contentPadding = PaddingValues(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
+            item {
+                RecentlyAddedContacts(
+                    contacts = state.recentlyAddedContacts,
+                    onClick = {
+                        onEvent(ContactListEvent.SelectContact(it))
+                    }
+                )
+            }
             item {
                 Text(
                     text = "My contacts (${state.contacts.size})",
@@ -72,4 +88,22 @@ fun ContactListScreen(
             }
         }
     }
+
+    ContactDetailSheet(
+        isOpen = state.isSelectedContactSheetOpen,
+        selectedContact = state.selectedContact,
+        onEvent = onEvent
+    )
+
+    AddContactSheet(
+        state = state,
+        newContact = newContact,
+        isOpen = state.isAddContactSheetOpen,
+        onEvent = { event ->
+            if (event is ContactListEvent.OnAddPhotoClicked) {
+                imagePicker.pickImage()
+            }
+            onEvent(event)
+        }
+    )
 }
